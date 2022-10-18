@@ -20,7 +20,7 @@ from sys import stdout
 cohorts = 'icgc hmf proactive mesa copdgene biome ukbb aou'.split()
 read_msg = '\n===STANDARDIZATION LOG===\n - Loaded phenotype data for {:,} total samples from {}.'
 drop_msg = ' - Excluded {:,} samples due to {}. {:,} samples remaining.'
-write_msg = 'Filtering completed. Retained a total of {:,} samples.\n'
+write_msg = 'Filtering completed. Writing data for a total of {:,} samples to {}\n'
 pop_map = {'Hispanic_Latin_American' : 'AMR',
            'African-American_African' : 'AFR',
            'European_American' : 'EUR',
@@ -85,6 +85,7 @@ def process_biome(infile, max_age_diff_wgs_bmi=3, quiet=False):
 
     # Add extra column
     idf['cohort'] = 'BioMe'
+    idf['cancer'] = 'control'
 
     # Reformat column values
     idf['population'] = idf.ancestry_group.map(pop_map)
@@ -96,12 +97,8 @@ def process_biome(infile, max_age_diff_wgs_bmi=3, quiet=False):
                         'age_at_dna_blood_draw_wgs' : 'age'},
                inplace=True)
 
-    # (Optionally) report filtering results
-    if not quiet:
-        print(write_msg.format(idf.shape[0]))
-
     # Reorder & return output columns
-    ordered_cols = 'cohort dbGaP_ID original_ID age sex population bmi height weight'
+    ordered_cols = 'cohort dbGaP_ID original_ID cancer age sex population bmi height weight'
     return idf[ordered_cols.split()]
 
 
@@ -129,6 +126,7 @@ def main():
     # Write to outfile
     if args.outfile in '- stdout'.split():
         fout = stdout
+        fout_path = 'stdout'
         stream_out = True
     else:
         stream_out = False
@@ -140,6 +138,10 @@ def main():
             fout_path = args.outfile
         fout = open(fout_path, 'w')
     clean_df.rename(columns={'cohort' : '#cohort'}).to_csv(fout, sep='\t', index=False)
+
+    # (Optionally) report filtering results
+    if not args.quiet:
+        print(write_msg.format(clean_df.shape[0], fout_path))
 
     # Gzip, if optioned
     if gzip and not stream_out:
