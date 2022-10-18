@@ -1,6 +1,6 @@
-# Germline WGS of RAS-driven cancers  
+# Germline genomics of RAS-driven cancers  
 
-Copyright (c) 2022 Ryan L Collins and the Van Allen Lab @ DFCI
+Copyright (c) 2022 Ryan L Collins and the Van Allen Lab @ DFCI  
 Contact: [Ryan Collins](mailto:Ryan_Collins@dfci.harvard.edu)
 
 ---  
